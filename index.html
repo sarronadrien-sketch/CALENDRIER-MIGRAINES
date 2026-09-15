@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#315efb">
+<title>Suivi migraines</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#17202a;--muted:#687386;--accent:#315efb;--line:#dfe3e8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:620px;margin:auto;padding:18px 16px 100px}
+header{padding:10px 4px 18px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--muted)}
+h1{font-size:34px;line-height:1.05;margin:7px 0}.subtitle{color:var(--muted);font-size:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 3px 14px #00000009}
+label{display:block;font-weight:750;margin-bottom:7px}.field{margin-bottom:16px}
+input,select{width:100%;height:50px;border:1px solid #cfd5dd;border-radius:12px;background:#fff;padding:0 13px;font-size:17px;color:var(--text)}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choices.two{grid-template-columns:repeat(2,1fr)}
+.choice input{display:none}.choice span{display:flex;min-height:50px;align-items:center;justify-content:center;border:1px solid #cfd5dd;border-radius:12px;background:#fff;font-weight:750}
+.choice input:checked+span{border:2px solid var(--accent);background:#eef2ff;color:#2445b5}
+button{border:0;border-radius:13px;padding:14px 16px;font-size:16px;font-weight:800;cursor:pointer}
+.primary{width:100%;background:var(--accent);color:white}.secondary{background:#eef2ff;color:#2947a8}.danger{background:#fff1f1;color:#a32929}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.entry{border-top:1px solid var(--line);padding:14px 0}.entry:first-child{border-top:0}
+.entryTop{display:flex;justify-content:space-between;gap:10px;align-items:center}.date{font-weight:850;font-size:17px}.pill{border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800}
+.low{background:#e8f7ec;color:#216e3a}.medium{background:#fff4d6;color:#805c00}.high{background:#ffe4e4;color:#9b2525}
+.meta{color:var(--muted);font-size:14px;line-height:1.55;margin-top:7px}.empty{color:var(--muted);text-align:center;padding:15px 0}
+.small{font-size:12px;color:var(--muted);line-height:1.4}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.statBox{background:#f3f5f8;border-radius:13px;padding:12px;text-align:center}.statNum{font-size:24px;font-weight:850}.statLabel{font-size:12px;color:var(--muted)}
+@media(max-width:400px){main{padding-left:12px;padding-right:12px}.choices{grid-template-columns:1fr}.choices.two{grid-template-columns:1fr}.actions{grid-template-columns:1fr}}
+
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calHead{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:3px}.calDay{min-height:40px;border:1px solid var(--line);border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;position:relative}.calDay.has{border:2px solid var(--accent);background:#eef2ff}.calDay.high{background:#ffe4e4;border-color:#d65b5b}.calDay.medium{background:#fff4d6;border-color:#d7a52e}.calDay.low{background:#e8f7ec;border-color:#5ba873}.calDay.empty{border:0;background:transparent}.calDot{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:currentColor}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="eyebrow">SUIVI PERSONNEL</div>
+<h1>Mes migraines</h1>
+<div class="subtitle">Enregistrez chaque crise en quelques secondes.</div>
+</header>
+
+<section class="card">
+  <div class="entryTop">
+    <div><div class="eyebrow">VUE RAPIDE</div><h2 style="margin:3px 0 0">Ce mois-ci</h2></div>
+    <input id="monthPicker" type="month" style="width:155px;height:42px">
+  </div>
+  <div id="monthStats" class="stat" style="margin-top:12px"></div>
+  <div id="calendar" style="margin-top:14px"></div>
+</section>
+
+<section class="card">
+<div class="entryTop"><div><div class="eyebrow">NOUVELLE CRISE</div><h2 style="margin:3px 0 0">Ajouter une migraine</h2></div></div>
+<div class="field">
+<label for="date">Jour</label>
+<input id="date" type="date">
+</div>
+
+<div class="field">
+<label>Intensité</label>
+<div class="choices">
+<label class="choice"><input type="radio" name="intensity" value="Faible"><span>Faible</span></label>
+<label class="choice"><input type="radio" name="intensity" value="Moyen"><span>Moyen</span></label>
+<label class="choice"><input type="radio" name="intensity" value="Fort"><span>Fort</span></label>
+</div>
+</div>
+
+<div class="field">
+<label for="triptan">Nombre de prises de Triptan par crise</label>
+<input id="triptan" type="number" min="0" max="20" step="1" value="0" inputmode="numeric">
+</div>
+
+<div class="field">
+<label for="cause">Cause probable</label>
+<select id="cause">
+<option value="">Choisir…</option>
+<option>Sommeil / fatigue</option>
+<option>Stress</option>
+<option>Alimentation</option>
+<option>Déshydratation</option>
+<option>Alcool</option>
+<option>Écrans / lumière</option>
+<option>Effort</option>
+<option>Météo</option>
+<option>Hormonal</option>
+<option>Inconnue</option>
+<option>Autre</option>
+</select>
+</div>
+
+<div class="field">
+<label>Côté</label>
+<div class="choices two">
+<label class="choice"><input type="radio" name="side" value="Gauche"><span>Gauche</span></label>
+<label class="choice"><input type="radio" name="side" value="Droit"><span>Droit</span></label>
+<label class="choice"><input type="radio" name="side" value="Deux côtés"><span>Deux côtés</span></label>
+<label class="choice"><input type="radio" name="side" value="Variable"><span>Variable</span></label>
+</div>
+</div>
+
+<button class="primary" id="save">Enregistrer la crise</button>
+</section>
+
+<section class="card">
+<h2 style="margin-top:0">Résumé</h2>
+<div class="stat">
+<div class="statBox"><div class="statNum" id="count">0</div><div class="statLabel">crises</div></div>
+<div class="statBox"><div class="statNum" id="days">0</div><div class="statLabel">jours</div></div>
+<div class="statBox"><div class="statNum" id="doses">0</div><div class="statLabel">prises</div></div>
+</div>
+</section>
+
+<section class="card">
+<div class="entryTop"><h2 style="margin:0">Historique</h2><button class="secondary" id="export">Exporter CSV</button></div>
+<div id="history"></div>
+<div class="actions" style="margin-top:10px">
+<button class="secondary" id="demo">Ajouter une ligne test</button>
+<button class="danger" id="clear">Effacer tout</button>
+</div>
+<p class="small">Les données sont enregistrées uniquement dans ce navigateur sur cet appareil. Pensez à exporter une copie si nécessaire.</p>
+</section>
+</main>
+
+<script>
+const KEY="migraineTrackerV1";
+let entries=JSON.parse(localStorage.getItem(KEY)||"[]");
+const $=id=>document.getElementById(id);
+$("date").value=new Date().toISOString().slice(0,10);
+
+function selected(name){return document.querySelector(`input[name="${name}"]:checked`)?.value||""}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function save(){localStorage.setItem(KEY,JSON.stringify(entries))}
+function intensityClass(v){return v==="Faible"?"low":v==="Moyen"?"medium":"high"}
+function formatDate(v){if(!v)return "";const [y,m,d]=v.split("-");return `${d}/${m}/${y}`}
+function render(){
+  const sorted=[...entries].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  $("count").textContent=entries.length;
+  $("days").textContent=new Set(entries.map(e=>e.date)).size;
+  $("doses").textContent=entries.reduce((s,e)=>s+Number(e.triptan||0),0);
+  if(!sorted.length){$("history").innerHTML='<div class="empty">Aucune crise enregistrée.</div>';return}
+  $("history").innerHTML=sorted.map(e=>`
+    <div class="entry">
+      <div class="entryTop">
+        <div class="date">${formatDate(e.date)}</div>
+        <span class="pill ${intensityClass(e.intensity)}">${esc(e.intensity)}</span>
+      </div>
+      <div class="meta">
+        Triptan : <b>${esc(e.triptan)}</b> prise(s) ·
+        Cause : <b>${esc(e.cause||"Non renseignée")}</b> ·
+        Côté : <b>${esc(e.side||"Non renseigné")}</b>
+      </div>
+    </div>`).join("");
+}
+$("save").onclick=()=>{
+  const date=$("date").value, intensity=selected("intensity"), side=selected("side"), cause=$("cause").value, triptan=Number($("triptan").value||0);
+  if(!date||!intensity){alert("Sélectionnez au minimum le jour et l’intensité.");return}
+  entries.push({id:Date.now(),date,intensity,triptan,cause,side});save();render();
+  $("date").value=new Date().toISOString().slice(0,10);
+  document.querySelectorAll('input[type="radio"]').forEach(x=>x.checked=false);
+  $("triptan").value=0;$("cause").value="";
+  window.scrollTo({top:document.querySelector(".card:nth-of-type(2)")?.offsetTop||0,behavior:"smooth"});
+};
+$("clear").onclick=()=>{if(confirm("Effacer tout l’historique ? Cette action est irréversible.")){entries=[];save();render()}};
+$("demo").onclick=()=>{entries.push({id:Date.now(),date:$("date").value,intensity:"Moyen",triptan:1,cause:"Stress",side:"Gauche"});save();render()};
+$("export").onclick=()=>{
+  const header=["Jour","Intensité","Prises de Triptan","Cause probable","Côté"];
+  const rows=entries.map(e=>[e.date,e.intensity,e.triptan,e.cause,e.side].map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(";"));
+  const blob=new Blob(["\ufeff"+header.join(";")+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="suivi-migraines.csv";a.click();URL.revokeObjectURL(a.href);
+};
+
+function monthData(month){
+  return entries.filter(e=>e.date.slice(0,7)===month);
+}
+function renderCalendar(){
+  const month=$("monthPicker").value || new Date().toISOString().slice(0,7);
+  const [y,mo]=month.split("-").map(Number);
+  const list=monthData(month);
+  const byDay={}; list.forEach(e=>{(byDay[e.date.slice(-2)*1]??=[]).push(e)});
+  const first=new Date(y,mo-1,1).getDay();
+  const offset=(first+6)%7, days=new Date(y,mo,0).getDate();
+  const names=["L","M","M","J","V","S","D"];
+  let s=names.map(n=>`<div class="calHead">${n}</div>`).join("");
+  for(let i=0;i<offset;i++)s+='<div class="calDay empty"></div>';
+  for(let d=1;d<=days;d++){
+    const arr=byDay[d]||[], max=arr.some(e=>e.intensity==="Fort")?"high":arr.some(e=>e.intensity==="Moyen")?"medium":arr.length?"low":"";
+    s+=`<div class="calDay ${max}" title="${arr.length?arr.map(e=>e.intensity).join(", "):""}">${d}${arr.length?'<span class="calDot"></span>':''}</div>`;
+  }
+  $("calendar").innerHTML=`<div class="calendar">${s}</div>`;
+  const doses=list.reduce((a,e)=>a+Number(e.triptan||0),0);
+  const strong=list.filter(e=>e.intensity==="Fort").length;
+  $("monthStats").innerHTML=`
+    <div class="statBox"><div class="statNum">${list.length}</div><div class="statLabel">crises</div></div>
+    <div class="statBox"><div class="statNum">${strong}</div><div class="statLabel">fortes</div></div>
+    <div class="statBox"><div class="statNum">${doses}</div><div class="statLabel">prises</div></div>`;
+}
+$("monthPicker").value=new Date().toISOString().slice(0,7);
+$("monthPicker").addEventListener("change",renderCalendar);
+
+const oldRender=render;
+render=function(){oldRender();renderCalendar();};
+
+render();
+</script>
+</body>
+</html>
